@@ -8,6 +8,7 @@
 
 # Install and load packages
 library(ggplot2)
+library(reshape2)
 library(tidyverse)
 library(ggpubr)
 library(scales)
@@ -40,7 +41,7 @@ cat.palette = c( "FSM"="#6BAED6", "ISM"="#FC8D59", "NIC"="#78C679",
                  "Intergenic" = "darksalmon", "GenicIntron"="#41B6C4")
 
 
-#Supplementary SX1 BUSCO Analysis Genome
+#Extended Fig. 63b BUSCO Analysis Genome
 
 BUSCO.data <- data.frame(BUSCO = c("Complete", "Complete_single", "Complete_Duplicated", "Framented", "Missing"), 
                     Value = c(9685, 9637, 48, 473, 1208), stringsAsFactors = FALSE)
@@ -54,70 +55,117 @@ BU <- ggplot(BUSCO.data, aes(x=BUSCO, y=Percentage, fill = BUSCO)) +
          theme(plot.title = element_text(hjust = 0.5)) +
          theme(axis.text.x = element_text(angle=90)) 
 BU
-pdf("Supplementary_figure_SX31b.pdf")
+pdf("Extended_Fig._63b.pdf")
 annotate_figure(BU)
 dev.off()
+## Extended Fig. 64
+###################
 
-  #### Panel B: Overview of manatee and mouse submissions
-# Manatee plots
-# manatee_code <- read.csv("manatee/manatee_code.txt", sep=",", header = T )
-# manatee_code$Lib_Plat <- apply(manatee_code, 1, function(x){
-#   paste(x["Library_Preps"], x["Platform"], sep = "-")
-# })
-# manatee_code$Lib_DC=apply(cbind(manatee_code[,c("Library_Preps", "Data_Category")]), 1, paste, collapse="-")
-# manatee_code$Label <-apply(cbind(manatee_code[,c("Platform","Library_Preps", "Data_Category")]), 1, paste, collapse="-")
+ES_mapping <- data.frame(
+  Label = c("illumina_1", "ONT_1", "ONT_10", "ONT_11", "ONT_2", "ONT_3", "ONT_4", "ONT_5", "ONT_6", "ONT_7", "ONT_8", "ONT_9", "PB_1", "PB_2", "PB_3", "PB_4", "PB_5"),
+  mapping_transcript = c(87.87, 100, 98.68, 99.98, 99.86, 100, 99.99, 99.88, 99.83, 99.02, 95.36, 99.99, NA, 99.98, 99.99, 99.99, 95.76),
+  Lib_Plat = c("cDNA-Illumina", "CapTrap-ONT", "dRNA-ONT", "R2C2-ONT", "cDNA-ONT", "dRNA-ONT", "R2C2-ONT", "cDNA-ONT", "cDNA-ONT", "cDNA-ONT", "cDNA-ONT", "dRNA-ONT", "CapTrap-PacBio", "cDNA-PacBio", "CapTrap-PacBio", "cDNA-PacBio", "cDNA-PacBio"),
+  Data_Category = c("SO", "LO", "LS", "LO", "LO", "LO", "LO", "LO", "LS", "LO", "LS", "LO", "LO", "LO", "LO", "LO", "LS"),
+  Tool = c("rnaSPAdes", "Bambu", "rnaSPAdes", "StringTie2\nIsoQuant", "Bambu", "Bambu", "Bambu", "RNA\nBloom", "RNA\nBloom", "StringTie2\nIsoQuant", "rnaSPAdes", "StringTie2\nIsoQuant", "Bambu", "Bambu", "StringTie2\nIsoQuant", "StringTie2\nIsoQuant", "rnaSPAdes")
+)
 
-# A <- ggplot(manatee_code, aes(x=Tool, fill=Lib_Plat)) +
-#   geom_bar(stat = "count", position = "stack") +
-#   geom_text(aes(label = ..count.. , group=Lib_Plat), stat = "count", position = position_stack(vjust = 0.5) ,size = 4) +
-#   pub_theme + 
-#   scale_fill_manual(values = libplat.palette, limits=c("cDNA-ONT", "cDNA-PacBio","cDNA-Illumina")) +
-#   ylab("# of submissions") +
-#   ggtitle("Challenge 3 submissions for Manatee data") +
-#   theme(plot.title = element_text(hjust = 0.5))
+manatee_mapping <- data.frame(
+  Label = c("illumina1", "ONT2", "ONT3", "ONT4", "ONT5", "PB1", "PB2", "PB3"),
+  mapping_transcript = c(75.82, 99.95, 100, 98.6, 99.86, 99.74, NA, 98.08),
+  Lib_Plat = c("cDNA-Illumina", "cDNA-ONT", "cDNA-ONT", "cDNA-ONT", "cDNA-ONT", "cDNA-PacBio", "cDNA-PacBio", "cDNA-PacBio"),
+  Data_Category = c("SO", "LO", "LO", "LS", "LS", "LO", "LO", "LS"),
+  Tool = c("rnaSPAdes", "RNA\nBloom", "StringTie2\nIsoQuant", "rnaSPAdes", "RNA\nBloom", "Bambu", "StringTie2\nIsoQuant", "rnaSPAdes")
+)
+
+ES_mapping$mapping_transcript[is.na(ES_mapping$mapping_transcript)] <- 98
+manatee_mapping$mapping_transcript[is.na(manatee_mapping$mapping_transcript)] <- 98
+
+SX3.1 <- ggplot(ES_mapping, aes(x=Label, y=as.numeric(mapping_transcript), color=Lib_Plat, shape=Data_Category))  + 
+  geom_segment( aes(x=Label, xend=Label, y=0, yend=as.numeric(mapping_transcript), color=Lib_Plat), size=2) +
+  geom_point(position = position_dodge(width = 1), size=5, aes(fill=Lib_Plat)) +
+  pub_theme+
+  theme_pubclean(flip=TRUE)+
+  theme( axis.text.y  = element_blank(),
+         axis.text.x = element_text(size=14),
+         axis.ticks.y = element_blank()) +
+  scale_fill_manual(values =  libplat.palette, name="Library-Platform") +
+  scale_color_manual(values =  libplat.palette, name="Library-Platform") +
+  scale_x_discrete(breaks=c("cDNA-Illumina-SO", "CapTrap-ONT-LO", "R2C2-ONT-LO", "cDNA-ONT-LO","CapTrap-PacBio-LO", "cDNA-PacBio-LO",
+                            "dRNA-ONT-LO", "dRNA-ONT-LS", "cDNA-ONT-LS",  "cDNA-PacBio-LS"),
+                   labels=c("SO", rep("LO", 6), rep("LS", 3)))+
+  facet_grid(Tool ~., drop = TRUE, scales="free_y" ) +
+  xlab("") + 
+  theme(axis.title=element_text(size=16),
+        strip.text.y = element_blank(), 
+        axis.line.y = element_blank()) +
+  theme(legend.position = "none") +
+  scale_y_reverse("", sec.axis = sec_axis(~ . , breaks = NULL, name = "Mouse ES"),
+                  label = unit_format(unit = "%"), limits=c(100 ,-4), expand = expansion(mult = c(0.1,0)))+
+  coord_flip()
+
+SX3.2 <- ggplot(manatee_mapping, aes(x=Label, y=as.numeric(mapping_transcript), color=Lib_Plat, shape=Data_Category)) + 
+  geom_segment( aes(x=Label, xend=Label, y=0, yend=as.numeric(mapping_transcript), color=Lib_Plat), size=2) +
+  geom_point(position = position_dodge(width = 1), size=5, aes(fill=Lib_Plat)) +
+  pub_theme+
+  theme_pubclean(flip=TRUE)+
+  theme( axis.text.y  = element_blank(),
+         axis.text.x = element_text(size=14),
+         axis.ticks.y = element_blank()) +
+  scale_fill_manual(values =  libplat.palette, name="Library-Platform") +
+  scale_color_manual(values =  libplat.palette, name="Library-Platform") +
+  scale_x_discrete(breaks=c("cDNA-Illumina-SO", "CapTrap-ONT-LO", "R2C2-ONT-LO", "cDNA-ONT-LO","CapTrap-PacBio-LO", "cDNA-PacBio-LO",
+                            "dRNA-ONT-LO", "dRNA-ONT-LS", "cDNA-ONT-LS",  "cDNA-PacBio-LS"),
+                   labels=c("SO", rep("LO", 6), rep("LS", 3)))+
+  facet_grid(Tool ~., drop = TRUE, scales="free_y" ) +
+  xlab("") + 
+  scale_y_continuous("", sec.axis = sec_axis(~ . , breaks = NULL, name = "Manatee"), 
+                     label = unit_format(unit = "%"),  limits=c(-4, 100), expand = expansion(mult = c(0,0.1)))+
+  theme(strip.text.y = element_blank(), 
+        axis.line.y = element_blank(),
+        axis.title=element_text(size=16)) +
+  theme(legend.position = "none") +
+  coord_flip() 
+
+SX.mid3<- ggplot(ES_mapping,aes(x=1,y=Tool))+
+  ggtitle("")+
+  scale_x_continuous(expand=c(0,0),limits=c(1,1))+
+  theme(axis.title=element_blank(),
+        panel.grid=element_blank(),
+        #axis.text.y = element_text(vjust=0.5, hjust = 0.5, size=14),
+        panel.background=element_blank(),
+        axis.text.x=element_text(color=NA),
+        axis.ticks.x=element_line(color=NA)) 
+        #theme_wsj()+ scale_colour_wsj("colors6")
+
+gg3.1 <- ggplot_gtable(ggplot_build(SX3.1))
+gg3.2 <- ggplot_gtable(ggplot_build(SX3.2))
+g.mid <- ggplot_gtable(ggplot_build(SX.mid3))
+
+Ch3S2 <- grid.arrange(gg3.1,g.mid, gg3.2,ncol=3,widths=c(4/9,1/9,4/9),
+                    top = textGrob("Mapping rate (%)",gp=gpar(fontsize=18,font=1)))
+
+ggsave(file="Ch3S2.svg", plot=Ch3S2, width=8, height=5)
+
+suppl = "64"
+mylegend <- paste0("     Extended Fig. ", suppl, ". Mapping rate of transcript detected by Challenge 3 submissions.")
+pdf("Extended_Fig._64.pdf")
+annotate_figure(Ch3S2,  bottom = text_grob(mylegend, hjust = 0,  x = 0,  size = 9))
+dev.off()
 
 
-# ES_code <- read.csv("ES/ES_code.txt", sep=",", header = T )
-# ES_code$Lib_Plat <- apply(ES_code, 1, function(x){
-#   paste(x["Library_Preps"], x["Platform"], sep = "-")
-# })
-# ES_code$Lib_DC=apply(cbind(ES_code[,c("Library_Preps", "Data_Category")]), 1, paste, collapse="-")
-# ES_code$Label <-apply(cbind(ES_code[,c("Platform","Library_Preps", "Data_Category")]), 1, paste, collapse="-")
-# 
-# B <- ggplot(ES_code, aes(x=Tool, fill=Lib_Plat)) +
-#   geom_bar(stat = "count", position = "stack") +
-#   geom_text(aes(label = ..count.. , group=Lib_Plat), stat = "count", position = position_stack(vjust = 0.5) ,size = 4) +
-#   pub_theme + 
-#   scale_fill_manual(values = libplat.palette, limits=force ) +
-#   ylab("# of submissions") +
-#   theme(legend.title=element_blank())+
-#   ggtitle("Challenge 3 submissions for Mouse ES data") +
-#   theme(plot.title = element_text(hjust = 0.5))
-
-# suppl = "SX2"
-# figureSX2 <- ggarrange(A,B,
-#                       labels = c( "a)", "b)"),
-#                      ncol = 1, nrow = 2, common.legend = TRUE, legend="bottom") +
-#   theme(plot.margin = margin(0.5,0.5,0.5,0.5, "cm")) 
-# mylegend <- paste0("     Supplementary figure ", suppl, ". Submissions Challenge 3. a) Manatee, b) Mouse ES.")
-# pdf("Supplementary_figure_SX2.pdf")
-# annotate_figure(figureSX2,  bottom = text_grob(mylegend, hjust = 0,  x = 0,  size = 9))
-# dev.off()
-
-## Supplementary SX3
-
+## Extended Fig. 65
+###################
+ES_code <- read.csv("ES_challenge1/ES_code.txt", sep=",", header = T )
 mouse_ch3 <- read.csv("ES_challenge1/ES_challenge1_metrics.summary_table_SC.csv", sep=",", header = T )
 mouse_ch1 <- read.csv("ES_challenge1/ES.summary_table_SC.csv", sep=",", header = T )
 ES_code$Sample <- paste(ES_code$Alias, ES_code$Library_Preps, ES_code$Platform, ES_code$Data_Category, sep = "-")
 code <- read.csv("ES_challenge1/code.csv", sep=",", header = T)
 code$Sample <- paste(code$Alias, code$Library_Preps, code$Platform, code$Data_Category, sep = "-")
 codes <- merge (ES_code, code, by.x = "Sample" , by.y = "Sample")
-head(codes)
 merged.data <- merge(codes, mouse_ch3, by.x = "pipelineCode.x", by.y = "ID")
-head(mouse_ch3)
 
 merged.data2 <- merge(merged.data, mouse_ch1, by.x = "pipelineCode.y", by.y = "ID")
-A <- merged.data2[,c(3,20:28)]; B<- merged.data2[,c(3,30:38)]
+A <- merged.data2[,c(3,17:25)]; B<- merged.data2[,c(3,27:35)]
 colnames(A) = colnames(B) <-  colnames(mouse_ch3)[-2]
 data.f <- as.data.frame(rbind (B,A))
 data.f$Challenge <- c(rep("Challenge 1", nrow(A)), rep("Challenge 3", nrow(B)))
@@ -131,9 +179,103 @@ C <- ggplot(data.ff, aes(x = Challenge, y = value, fill = variable)) +
   theme(axis.text.x = element_text(angle=90)) +
   theme(legend.position="bottom")
 
-suppl = "SX3"
-mylegend <- paste0("     Supplementary figure ", suppl, ". Detection of SQANTI categories for the same tools in Challenge 1 and 3. \n     Challenge 1 used the reference annotation and Challenge 3 did not. Ba = Bambu, IQ = IsoQuant.")
-pdf("Supplementary_figure_SX3.pdf")
+ggsave(file="Ch3S3.svg", plot=Ch3S2, width=8, height=5)
+
+suppl = "65"
+mylegend <- paste0("     Extended Fig. ", suppl, ". SQANTI category classification of transcript models detected by the same tools in Challenge 1 and 3.\n     Challenge 1 predictions used the reference annotation and Challenge 3 predictions did not.\n     Ba = Bambu, IQ = StringTie2/IsoQuant.")
+pdf("Extended_Fig._65.pdf.pdf")
 annotate_figure(C,  bottom = text_grob(mylegend, hjust = 0,  x = 0,  size = 9))
+dev.off()
+
+## Extended Fig. 66
+###################
+
+ES_coding <- data.frame(
+  Label = c("illumina_1", "ONT_1", "ONT_10", "ONT_11", "ONT_2", "ONT_3", "ONT_4", "ONT_5", "ONT_6", "ONT_7", "ONT_8", "ONT_9", "PB_1", "PB_2", "PB_3", "PB_4", "PB_5"),
+  coding_transcript = c(14.75, 75.65, 35.02, 92.24, 75.73, 91.76, 93.4, 80.33, 76.65, 58.85, 28.43, 88.88, 88.6, 94.1, 85.59, 92.47, 25.53),
+  Lib_Plat = c("cDNA-Illumina", "CapTrap-ONT", "dRNA-ONT", "R2C2-ONT", "cDNA-ONT", "dRNA-ONT", "R2C2-ONT", "cDNA-ONT", "cDNA-ONT", "cDNA-ONT", "cDNA-ONT", "dRNA-ONT", "CapTrap-PacBio", "cDNA-PacBio", "CapTrap-PacBio", "cDNA-PacBio", "cDNA-PacBio"),
+  Data_Category = c("SO", "LO", "LS", "LO", "LO", "LO", "LO", "LO", "LS", "LO", "LS", "LO", "LO", "LO", "LO", "LO", "LS"),
+  Tool = c("rnaSPAdes", "Bambu", "rnaSPAdes", "StringTie2\nIsoQuant", "Bambu", "Bambu", "Bambu", "RNA\nBloom", "RNA\nBloom", "StringTie2\nIsoQuant", "rnaSPAdes", "StringTie2\nIsoQuant", "Bambu", "Bambu", "StringTie2\nIsoQuant", "StringTie2\nIsoQuant", "rnaSPAdes")
+)
+
+manatee_coding <- data.frame(
+  Label = c("illumina1", "ONT2", "ONT3", "ONT4", "ONT5", "PB1", "PB2", "PB3"),
+  coding_transcript = c(4.7, 49.64, 66.9, 7.73, 44.53, 64.35, 68.8, 10.06),
+  Lib_Plat = c("cDNA-Illumina", "cDNA-ONT", "cDNA-ONT", "cDNA-ONT", "cDNA-ONT", "cDNA-PacBio", "cDNA-PacBio", "cDNA-PacBio"),
+  Data_Category = c("SO", "LO", "LO", "LS", "LS", "LO", "LO", "LS"),
+  Tool = c("rnaSPAdes", "RNA\nBloom", "StringTie2\nIsoQuant", "rnaSPAdes", "RNA\nBloom", "Bambu", "StringTie2\nIsoQuant", "rnaSPAdes")
+)
+
+SX4.1 <- ggplot(ES_coding, aes(x=Label, y=as.numeric(coding_transcript), color=Lib_Plat, shape=Data_Category))  + 
+  geom_segment( aes(x=Label, xend=Label, y=0, yend=as.numeric(coding_transcript), color=Lib_Plat), size=2) +
+  geom_point(position = position_dodge(width = 1), size=5, aes(fill=Lib_Plat)) +
+  pub_theme+
+  theme_pubclean(flip=TRUE)+
+  theme( axis.text.y  = element_blank(),
+         axis.text.x = element_text(size=14),
+         axis.ticks.y = element_blank()) +
+  scale_fill_manual(values =  libplat.palette, name="Library-Platform") +
+  scale_color_manual(values =  libplat.palette, name="Library-Platform") +
+  scale_x_discrete(breaks=c("cDNA-Illumina-SO", "CapTrap-ONT-LO", "R2C2-ONT-LO", "cDNA-ONT-LO","CapTrap-PacBio-LO", "cDNA-PacBio-LO",
+                            "dRNA-ONT-LO", "dRNA-ONT-LS", "cDNA-ONT-LS",  "cDNA-PacBio-LS"),
+                   labels=c("SO", rep("LO", 6), rep("LS", 3)))+
+  facet_grid(Tool ~., drop = TRUE, scales="free_y" ) +
+  xlab("") + 
+  theme(axis.title=element_text(size=16),
+        strip.text.y = element_blank(), 
+        axis.line.y = element_blank()) +
+  theme(legend.position = "none") +
+  scale_y_reverse("", sec.axis = sec_axis(~ . , breaks = NULL, name = "Mouse ES"),
+                  label = unit_format(unit = "%"), limits=c(100 ,-3), expand = expansion(mult = c(0.1,0)))+
+  coord_flip()
+
+SX4.2 <- ggplot(manatee_coding, aes(x=Label, y=as.numeric(coding_transcript), color=Lib_Plat, shape=Data_Category)) + 
+  geom_segment( aes(x=Label, xend=Label, y=0, yend=as.numeric(coding_transcript), color=Lib_Plat), size=2) +
+  geom_point(position = position_dodge(width = 1), size=5, aes(fill=Lib_Plat)) +
+  pub_theme+
+  theme_pubclean(flip=TRUE)+
+  theme( axis.text.y  = element_blank(),
+         axis.text.x = element_text(size=14),
+         axis.ticks.y = element_blank()) +
+  scale_fill_manual(values =  libplat.palette, name="Library-Platform") +
+  scale_color_manual(values =  libplat.palette, name="Library-Platform") +
+  scale_x_discrete(breaks=c("cDNA-Illumina-SO", "CapTrap-ONT-LO", "R2C2-ONT-LO", "cDNA-ONT-LO","CapTrap-PacBio-LO", "cDNA-PacBio-LO",
+                            "dRNA-ONT-LO", "dRNA-ONT-LS", "cDNA-ONT-LS",  "cDNA-PacBio-LS"),
+                   labels=c("SO", rep("LO", 6), rep("LS", 3)))+
+  facet_grid(Tool ~., drop = TRUE, scales="free_y" ) +
+  xlab("") + 
+  scale_y_continuous("", sec.axis = sec_axis(~ . , breaks = NULL, name = "Manatee"), 
+                     label = unit_format(unit = "%"),  limits=c(-1, 100), expand = expansion(mult = c(0,0.1)))+
+  theme(strip.text.y = element_blank(), 
+        axis.line.y = element_blank(),
+        axis.title=element_text(size=16)) +
+  theme(legend.position = "none") +
+  coord_flip() 
+
+SX.mid3<- ggplot(ES_coding,aes(x=1,y=Tool))+
+  ggtitle("")+
+  ylab(NULL)+
+  scale_x_continuous(expand=c(0,0),limits=c(1,1))+
+  theme(axis.title=element_blank(),
+        panel.grid=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank(),
+        panel.background=element_blank(),
+        axis.text.x=element_text(color=NA),
+        axis.ticks.x=element_line(color=NA))
+
+gg4.1 <- ggplot_gtable(ggplot_build(SX4.1))
+gg4.2 <- ggplot_gtable(ggplot_build(SX4.2))
+g.mid <- ggplot_gtable(ggplot_build(SX.mid3))
+
+Ch3S4 <- grid.arrange(gg4.1,g.mid, gg4.2,ncol=3,widths=c(4/9,1/9,4/9),
+                    top = textGrob("Transcripts with coding potential (%)",gp=gpar(fontsize=18,font=1)))
+
+ggsave(file="Ch3S4.svg", plot=Ch3S4, width=8, height=5)
+
+suppl = "66"
+mylegend <- paste0("     Extended Fig. ", suppl, ". Coding potential of transcripts detected by Challenge 3 submissions.")
+pdf("Extended_Fig._66_b.pdf")
+annotate_figure(Ch3S2,  bottom = text_grob(mylegend, hjust = 0,  x = 0,  size = 9))
 dev.off()
 
