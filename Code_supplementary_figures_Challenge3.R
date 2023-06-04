@@ -16,6 +16,10 @@ library(patchwork)
 library(gridExtra)
 library(grid)
 library(RColorConesa)
+library(ggthemes)
+
+outdir = "output/supplementary"
+dir.create(outdir, recursive=TRUE, showWarnings=FALSE)
 
 #### set theme for plots
 pub_theme <- theme_pubclean(base_family = "Helvetica") +
@@ -55,11 +59,13 @@ BU <- ggplot(BUSCO.data, aes(x=BUSCO, y=Percentage, fill = BUSCO)) +
          theme(plot.title = element_text(hjust = 0.5)) +
          theme(axis.text.x = element_text(angle=90)) 
 BU
-pdf("Extended_Fig._63b.pdf")
+pdf(paste0(outdir, "/Extended_Fig._63b.pdf"))
 annotate_figure(BU)
 dev.off()
+
 ## Extended Fig. 64
 ###################
+
 
 ES_mapping <- data.frame(
   Label = c("illumina_1", "ONT_1", "ONT_10", "ONT_11", "ONT_2", "ONT_3", "ONT_4", "ONT_5", "ONT_6", "ONT_7", "ONT_8", "ONT_9", "PB_1", "PB_2", "PB_3", "PB_4", "PB_5"),
@@ -144,22 +150,22 @@ g.mid <- ggplot_gtable(ggplot_build(SX.mid3))
 Ch3S2 <- grid.arrange(gg3.1,g.mid, gg3.2,ncol=3,widths=c(4/9,1/9,4/9),
                     top = textGrob("Mapping rate (%)",gp=gpar(fontsize=18,font=1)))
 
-ggsave(file="Ch3S2.svg", plot=Ch3S2, width=8, height=5)
+ggsave(file=paste0(outdir, "/Ch3S2.svg"), plot=Ch3S2, width=8, height=5)
 
 suppl = "64"
 mylegend <- paste0("     Extended Fig. ", suppl, ". Mapping rate of transcript detected by Challenge 3 submissions.")
-pdf("Extended_Fig._64.pdf")
+pdf(paste0(outdir, "/Extended_Fig._64.pdf"))
 annotate_figure(Ch3S2,  bottom = text_grob(mylegend, hjust = 0,  x = 0,  size = 9))
 dev.off()
 
 
 ## Extended Fig. 65
 ###################
-ES_code <- read.csv("ES_challenge1/ES_code.txt", sep=",", header = T )
-mouse_ch3 <- read.csv("ES_challenge1/ES_challenge1_metrics.summary_table_SC.csv", sep=",", header = T )
-mouse_ch1 <- read.csv("ES_challenge1/ES.summary_table_SC.csv", sep=",", header = T )
+ES_code <- read.csv("Challenge3_Figures_Data/ES_challenge1/ES_code.txt", sep=",", header = T )
+mouse_ch3 <- read.csv("Challenge3_Figures_Data/ES_challenge1/ES_challenge1_metrics.summary_table_SC.csv", sep=",", header = T )
+mouse_ch1 <- read.csv("Challenge3_Figures_Data/ES_challenge1/ES.summary_table_SC.csv", sep=",", header = T )
 ES_code$Sample <- paste(ES_code$Alias, ES_code$Library_Preps, ES_code$Platform, ES_code$Data_Category, sep = "-")
-code <- read.csv("ES_challenge1/code.csv", sep=",", header = T)
+code <- read.csv("Challenge3_Figures_Data/ES_challenge1/code.csv", sep=",", header = T)
 code$Sample <- paste(code$Alias, code$Library_Preps, code$Platform, code$Data_Category, sep = "-")
 codes <- merge (ES_code, code, by.x = "Sample" , by.y = "Sample")
 merged.data <- merge(codes, mouse_ch3, by.x = "pipelineCode.x", by.y = "ID")
@@ -179,11 +185,11 @@ C <- ggplot(data.ff, aes(x = Challenge, y = value, fill = variable)) +
   theme(axis.text.x = element_text(angle=90)) +
   theme(legend.position="bottom")
 
-ggsave(file="Ch3S3.svg", plot=Ch3S2, width=8, height=5)
+ggsave(file=paste0(outdir, "/Ch3S3.svg"), plot=Ch3S2, width=8, height=5)
 
 suppl = "65"
 mylegend <- paste0("     Extended Fig. ", suppl, ". SQANTI category classification of transcript models detected by the same tools in Challenge 1 and 3.\n     Challenge 1 predictions used the reference annotation and Challenge 3 predictions did not.\n     Ba = Bambu, IQ = StringTie2/IsoQuant.")
-pdf("Extended_Fig._65.pdf.pdf")
+pdf(paste0(outdir, "/Extended_Fig._65.pdf"))
 annotate_figure(C,  bottom = text_grob(mylegend, hjust = 0,  x = 0,  size = 9))
 dev.off()
 
@@ -271,11 +277,11 @@ g.mid <- ggplot_gtable(ggplot_build(SX.mid3))
 Ch3S4 <- grid.arrange(gg4.1,g.mid, gg4.2,ncol=3,widths=c(4/9,1/9,4/9),
                     top = textGrob("Transcripts with coding potential (%)",gp=gpar(fontsize=18,font=1)))
 
-ggsave(file="Ch3S4.svg", plot=Ch3S4, width=8, height=5)
+ggsave(file=paste0(outdir, "/Ch3S4.svg"), plot=Ch3S4, width=8, height=5)
 
 suppl = "66"
 mylegend <- paste0("     Extended Fig. ", suppl, ". Coding potential of transcripts detected by Challenge 3 submissions.")
-pdf("Extended_Fig._66_b.pdf")
+pdf(paste0(outdir, "/Extended_Fig._66_b.pdf"))
 annotate_figure(Ch3S2,  bottom = text_grob(mylegend, hjust = 0,  x = 0,  size = 9))
 dev.off()
 

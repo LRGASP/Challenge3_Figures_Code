@@ -18,6 +18,9 @@ library(RColorConesa)
 library(fmsb)
 library(MetBrewer)
 
+outdir = "output/main"
+dir.create(outdir, recursive=TRUE, showWarnings=FALSE)
+
 #### set theme for plots
 pub_theme <- theme_pubclean(base_family = "Helvetica") +
   theme(axis.line.x = element_line(color="black", size = 0.4),
@@ -46,14 +49,14 @@ cat.palette = c( "FSM"="#6BAED6", "ISM"="#FC8D59", "NIC"="#78C679",
 #############
 
 # Process the code file
-ES_code <- read.csv("ES/ES_code.txt", sep=",", header = T )
+ES_code <- read.csv("Challenge3_Figures_Data/ES/ES_code.txt", sep=",", header = T )
 ES_code$Lib_Plat <- apply(ES_code, 1, function(x){
   paste(x["Library_Preps"], x["Platform"], sep = "-")
 })
 ES_code$Lib_DC=apply(cbind(ES_code[,c("Library_Preps", "Data_Category")]), 1, paste, collapse="-")
 ES_code$Label <-apply(cbind(ES_code[,c("Library_Preps", "Platform", "Data_Category")]), 1, paste, collapse="-")
 
-ES_summary_table <- read.csv("ES_challenge1/ES_challenge1_metrics.summary_table_SC.csv", header = T)
+ES_summary_table <- read.csv("Challenge3_Figures_Data/ES_challenge1/ES_challenge1_metrics.summary_table_SC.csv", header = T)
 ES_summary_table <- merge(ES_summary_table, ES_code, by.x="ID", by.y="pipelineCode")
 ES_summary_table$Tool <- gsub("-", "\n", ES_summary_table$Tool)
 
@@ -105,11 +108,11 @@ p.A2 <- ggplot(melted_ES_summary, aes(x=Label, y=value, fill=name)) +
 pA <- p.A1 / p.A2 + 
   plot_layout(heights = c(1, 1), ncol = 1)
 
-ggsave(file="panel4a.svg", plot=pA, width=12, height=6)
+ggsave(file=paste0(outdir, "/panel4a.svg"), plot=pA, width=12, height=6)
 
 
 ##### version to show mono-exons with alpha
-df_SC_monoexons <- read.csv("ES_challenge1/ES_challenge1_metrics.monoexons_SC.csv", sep=",", header = T) %>% t() %>% as.data.frame()
+df_SC_monoexons <- read.csv("Challenge3_Figures_Data/ES_challenge1/ES_challenge1_metrics.monoexons_SC.csv", sep=",", header = T) %>% t() %>% as.data.frame()
 df_SC_monoexons$total_mono <- apply(df_SC_monoexons,1,sum)
 df_SC_monoexons$ID <- row.names(df_SC_monoexons)
 total_mono <- df_SC_monoexons$total_mono
@@ -141,7 +144,7 @@ p.A1_exons <- ggplot(melted_ES_summary_exons, aes(x=Label, y=value, alpha=name, 
 pA_alt <- p.A1_exons / p.A2 + 
   plot_layout(heights = c(1, 1))
 
-ggsave(file="panel4a_alt.svg", plot=pA_alt, width=12, height=6)
+ggsave(file=paste0(outdir, "/panel4a_alt.svg"), plot=pA_alt, width=12, height=6)
 
 ### End Panel 4a
 ################
@@ -150,7 +153,7 @@ ggsave(file="panel4a_alt.svg", plot=pA_alt, width=12, height=6)
 ############
 
 # Process the code file
-manatee_code <- read.csv("manatee/manatee_code.txt", sep=",", header = T )
+manatee_code <- read.csv("Challenge3_Figures_Data/manatee/manatee_code.txt", sep=",", header = T )
 manatee_code$Lib_Plat <- apply(manatee_code, 1, function(x){
   paste(x["Library_Preps"], x["Platform"], sep = "-")
 })
@@ -158,7 +161,7 @@ manatee_code$Lib_DC=apply(cbind(manatee_code[,c("Library_Preps", "Data_Category"
 manatee_code$Label <-apply(cbind(manatee_code[,c("Library_Preps", "Platform", "Data_Category")]), 1, paste, collapse="-")
 
 # Obtain metrics for manatee
-manatee_metrics <- read.csv("manatee/manatee_challenge3_metrics.challenge3_metrics.csv", sep=",",header = T) %>% t()
+manatee_metrics <- read.csv("Challenge3_Figures_Data/manatee/manatee_challenge3_metrics.challenge3_metrics.csv", sep=",",header = T) %>% t()
 mono_exons_df<-data.frame(Row.names=c("ONT1","PB1","ONT2", "illumina1","ONT3","ONT4","PB2","PB3","ONT5"), 
                           Num.monoexons=c(0,7,79174,635028,3703,470801,52,246565,85291))
 rownames(mono_exons_df) <- mono_exons_df$Row.names
@@ -177,7 +180,7 @@ melted_manatee$Tool <- gsub("-", "\n", melted_manatee$Tool)
 # Process info number isoforms per locus
 trx_locus.list <- list()
 for (i in c("ONT1", "ONT2","ONT3","ONT4","ONT5","PB1","PB2","PB3","illumina1")){
-  trx_file=paste0("manatee/manatee_isoforms_per_gene/",i,"_cpm_vs_trans.tsv")
+  trx_file=paste0("Challenge3_Figures_Data/manatee/manatee_isoforms_per_gene/",i,"_cpm_vs_trans.tsv")
   df=read.csv(trx_file,sep="\t",header = T)
   num_trx_locus <- data.frame(Cat=c("1","2-3","4-5", ">6"), 
                               Num_locus=c(which(df$n_isoforms==1) %>% length(), 
@@ -228,7 +231,7 @@ pF4.2 <- ggplot(trx_locus.df, aes(x=pipeline, y=Num_locus, fill=Cat)) +
 
 pF <- pF4.1 / pF4.2 +
   plot_layout(heights = c(1, 1), ncol = 1)
-ggsave(file="panel4b.svg", plot=pF, width=12, height=6)
+ggsave(file=paste0(outdir, "/panel4b.svg"), plot=pF, width=12, height=6)
 
 
 ### End Panel 4b
@@ -243,7 +246,7 @@ for (i in c("ONT_1", "ONT_2","ONT_3","ONT_4","ONT_5",
             "ONT_6", "ONT_7","ONT_8","ONT_9","ONT_10",
             "ONT_11","PB_1","PB_2","PB_3",
             "PB_4", "PB_5", "illumina_1")){
-  length_file=paste0("ES/length_distributions/",i,"_length_dist.tsv")
+  length_file=paste0("Challenge3_Figures_Data/ES/length_distributions/",i,"_length_dist.tsv")
   df=read.csv(length_file,sep="\t",header = T)
   dist.list_ES[[i]] <- as.numeric(df$length) %>% as.data.frame()
 }
@@ -268,7 +271,7 @@ pF3 <- ggplot(dist_df_ES, aes(x=Label, y=length, fill=Lib_Plat))+
   theme(strip.text.x = element_text(size=16)) +
   scale_y_continuous(trans='log10', breaks = trans_breaks("log10", function(x) 10^x),
                      labels = trans_format("log10", math_format(10^.x)) )
-ggsave(file="panel4c.svg", plot=pF3, width=12, height=6)
+ggsave(file=paste0(outdir, "/panel4c.svg"), plot=pF3, width=12, height=6)
 
 ### End Panel 4c
 ################
@@ -277,7 +280,7 @@ ggsave(file="panel4c.svg", plot=pF3, width=12, height=6)
 ############
 dist.list_manatee <- list()
 for (i in c("ONT1", "ONT2","ONT3","ONT4","ONT5","PB1","PB2","PB3","illumina1")){
-  length_file=paste0("manatee/length_distributions/",i,"_length_dist.tsv")
+  length_file=paste0("Challenge3_Figures_Data/manatee/length_distributions/",i,"_length_dist.tsv")
   df=read.csv(length_file,sep="\t",header = T)
   dist.list_manatee[[i]] <- as.numeric(df$length) %>% as.data.frame()
 }
@@ -305,12 +308,12 @@ pF2 <- ggplot(dist_df_manatee, aes(x=Label, y=length, fill=Lib_Plat))+
   scale_y_continuous(trans='log10', breaks = trans_breaks("log10", function(x) 10^x),
                      labels = trans_format("log10", math_format(10^.x)) )
 
-ggsave(file="panel4d.svg", plot=pF2, width=12, height=6)
+ggsave(file=paste0(outdir, "/panel4d.svg"), plot=pF2, width=12, height=6)
 
 ### Panel 4e1
 #############
 
-ES_metrics_perc <- read.csv("ES/ES_challenge3_metrics.challenge3_metrics_perc.csv", sep=",",header = T) %>% t()
+ES_metrics_perc <- read.csv("Challenge3_Figures_Data/ES/ES_challenge3_metrics.challenge3_metrics_perc.csv", sep=",",header = T) %>% t()
 ES_metrics_perc <- merge(ES_metrics_perc, ES_code, by.x=0, by.y="pipelineCode")
 ES_metrics_perc$Tool <- gsub("-", "\n", ES_metrics_perc$Tool)
 colnames(ES_metrics_perc) <- make.names(colnames(ES_metrics_perc))
@@ -333,7 +336,7 @@ pC_SJ <- ggplot(ES_metrics_perc, aes(x=Label, y=as.numeric(Splice.Junctions.with
   theme(legend.position = "none",
         strip.text.x = element_text(size = 18))
 
-ggsave(file="panel4e1.svg", plot=pC_SJ, width=8, height=8)
+ggsave(file=paste0(outdir, "/panel4e1.svg"), plot=pC_SJ, width=8, height=8)
 
 ### End Panel 4e1
 ################
@@ -341,7 +344,7 @@ ggsave(file="panel4e1.svg", plot=pC_SJ, width=8, height=8)
 ### Panel 4e2
 #############
 
-CAGE_QUANT_csv <- read.csv("ES_challenge1/ES_challenge1_metrics.CAGE_QuantSeq.csv", header = T)
+CAGE_QUANT_csv <- read.csv("Challenge3_Figures_Data/ES_challenge1/ES_challenge1_metrics.CAGE_QuantSeq.csv", header = T)
 CAGE_QUANT <- merge(CAGE_QUANT_csv, ES_code, by.x=0, by.y="pipelineCode")
 CAGE_QUANT$total <- apply(CAGE_QUANT, 1,function(x){
   as.numeric(x["CAGE"])+as.numeric(x["noCAGE"])
@@ -372,7 +375,7 @@ pCAGE <- ggplot(CAGE_QUANT, aes(x=Label, y=as.numeric(CAGE_perc), color=Lib_Plat
   theme(legend.position = "none",
         strip.text.x = element_text(size = 18))
 
-ggsave(file="panel4e2.svg", plot=pCAGE, width=8, height=8)
+ggsave(file=paste0(outdir, "/panel4e2.svg"), plot=pCAGE, width=8, height=8)
 
 
 ### End Panel 4e2
@@ -398,7 +401,7 @@ pC_nonCan <- ggplot(ES_metrics_perc, aes(x=Label, y=as.numeric(Non.canonical.Spl
   theme(legend.position = "none",
         strip.text.x = element_text(size = 18))
 
-ggsave(file="panel4e3.svg", plot=pC_nonCan, width=8, height=8)
+ggsave(file=paste0(outdir, "/panel4e3.svg"), plot=pC_nonCan, width=8, height=8)
 
 ### End Panel 4e3
 #################
@@ -423,7 +426,7 @@ pQuant <- ggplot(CAGE_QUANT, aes(x=Label, y=as.numeric(Quant_perc), color=Lib_Pl
   theme(legend.position = "none",
         strip.text.x = element_text(size = 18))
 
-ggsave(file="panel4e4.svg", plot=pQuant , width=8, height=8)
+ggsave(file=paste0(outdir, "/panel4e4.svg"), plot=pQuant , width=8, height=8)
 
 ### End Panel 4e4
 #################
@@ -432,13 +435,13 @@ ggsave(file="panel4e4.svg", plot=pQuant , width=8, height=8)
 ### Panel 4f1
 #############
 
-manatee_BUSCO <- read.csv("manatee/manatee_challenge3_metrics.BUSCO_metrics.csv", sep=",",header = T) %>% t()
+manatee_BUSCO <- read.csv("Challenge3_Figures_Data/manatee/manatee_challenge3_metrics.BUSCO_metrics.csv", sep=",",header = T) %>% t()
 manatee_BUSCO <- merge(manatee_BUSCO, manatee_code, by.x=0, by.y="pipelineCode")
 manatee_BUSCO$Tool <- gsub("-", "\n", manatee_BUSCO$Tool)
 colnames(manatee_BUSCO) <- make.names(colnames(manatee_BUSCO))
 manatee_BUSCO <- manatee_BUSCO %>% filter(Row.names!="ONT1")
 
-ES_BUSCO <- read.csv("ES/ES_challenge3_metrics.BUSCO_metrics.csv", sep=",",header = T) %>% t()
+ES_BUSCO <- read.csv("Challenge3_Figures_Data/ES/ES_challenge3_metrics.BUSCO_metrics.csv", sep=",",header = T) %>% t()
 ES_BUSCO <- merge(ES_BUSCO, ES_code, by.x=0, by.y="pipelineCode")
 ES_BUSCO$Tool <- gsub("-", "\n", ES_BUSCO$Tool)
 colnames(ES_BUSCO) <- make.names(colnames(ES_BUSCO))
@@ -544,7 +547,7 @@ g.mid <- ggplot_gtable(ggplot_build(p.mid7))
 pD7 <- grid.arrange(gg1.7,g.mid, gg2.7,ncol=3,widths=c(4/9,1/9,4/9),
                     top = textGrob("BUSCO genes found (%)",gp=gpar(fontsize=18,font=1)))
 
-ggsave(file="panel4f1.svg", plot=pD7, width=8, height=5)
+ggsave(file=paste0(outdir, "/panel4f1.svg"), plot=pD7, width=8, height=5)
 
 ### End Panel 4f1
 ################
@@ -604,7 +607,7 @@ gg2.7f <- ggplot_gtable(ggplot_build(pD7.2f))
 pD7f <- grid.arrange(gg1.7f,g.mid, gg2.7f,ncol=3,widths=c(4/9,1/9,4/9),
                      top = textGrob("BUSCO genes fragmented (%)",gp=gpar(fontsize=18,font=1)))
 
-ggsave(file="panel4f2.svg", plot=pD7f, width=8, height=5)
+ggsave(file=paste0(outdir, "/panel4f2.svg"), plot=pD7f, width=8, height=5)
 
 ### End Panel 4f2
 #################
@@ -635,36 +638,36 @@ pD7.1m <- ggplot(ES_BUSCO, aes(x=Label, y=as.numeric(BUSCO_missing), color=Lib_P
                   label = unit_format(unit = "%"), limits=c(100,-3), expand = expansion(mult = c(0.1,0)))+
   coord_flip()
 
-pD7.2m <- ggplot(manatee_BUSCO, aes(x=Label, y=as.numeric(BUSCO_missing), color=Lib_Plat, shape=Data_Category)) + 
-  geom_segment( aes(x=Label, xend=Label, y=0, yend=as.numeric(BUSCO_missing), color=Lib_Plat), size=2) +
-  geom_point(position = position_dodge(width = 1), size=5, aes(fill=Lib_Plat)) +
-  pub_theme+
-  theme_pubclean(flip=TRUE)+
-  theme( axis.text.y  = element_blank(),
-         axis.text.x = element_text(size=14),
-         axis.ticks.y = element_blank()) +
-  scale_fill_manual(values =  libplat.palette, name="Library-Platform") +
-  scale_color_manual(values =  libplat.palette, name="Library-Platform") +
-  scale_x_discrete(breaks=c("cDNA-Illumina-SO", "CapTrap-ONT-LO", "R2C2-ONT-LO", "cDNA-ONT-LO","CapTrap-PacBio-LO", "cDNA-PacBio-LO",
-                            "dRNA-ONT-LO", "dRNA-ONT-LS", "cDNA-ONT-LS",  "cDNA-PacBio-LS"),
-                   labels=c("SO", rep("LO", 6), rep("LS", 3)))+
-  facet_grid(Tool ~., drop = TRUE, scales="free_y" ) +
-  xlab("") + 
-  scale_y_continuous("", sec.axis = sec_axis(~ . , breaks = NULL, name = "Manatee"), 
-                     label = unit_format(unit = "%"),  limits=c(-2, 100), expand = expansion(mult = c(0,0.1)))+
-  theme(axis.title=element_text(size=16),
-        strip.text.y = element_blank(), 
-        axis.line.y = element_blank()) +
-  theme(legend.position = "none") +
-  coord_flip() 
+#pD7.2m <- ggplot(manatee_BUSCO, aes(x=Label, y=as.numeric(BUSCO_missing), color=Lib_Plat, shape=Data_Category)) + 
+#  geom_segment( aes(x=Label, xend=Label, y=0, yend=as.numeric(BUSCO_missing), color=Lib_Plat), size=2) +
+#  geom_point(position = position_dodge(width = 1), size=5, aes(fill=Lib_Plat)) +
+#  pub_theme+
+#  theme_pubclean(flip=TRUE)+
+#  theme( axis.text.y  = element_blank(),
+#         axis.text.x = element_text(size=14),
+#         axis.ticks.y = element_blank()) +
+#  scale_fill_manual(values =  libplat.palette, name="Library-Platform") +
+#  scale_color_manual(values =  libplat.palette, name="Library-Platform") +
+#  scale_x_discrete(breaks=c("cDNA-Illumina-SO", "CapTrap-ONT-LO", "R2C2-ONT-LO", "cDNA-ONT-LO","CapTrap-PacBio-LO", "cDNA-PacBio-LO",
+#                            "dRNA-ONT-LO", "dRNA-ONT-LS", "cDNA-ONT-LS",  "cDNA-PacBio-LS"),
+#                   labels=c("SO", rep("LO", 6), rep("LS", 3)))+
+#  facet_grid(Tool ~., drop = TRUE, scales="free_y" ) +
+#  xlab("") + 
+#  scale_y_continuous("", sec.axis = sec_axis(~ . , breaks = NULL, name = "Manatee"), 
+#                     label = unit_format(unit = "%"),  limits=c(-2, 100), expand = expansion(mult = c(0,0.1)))+
+#  theme(axis.title=element_text(size=16),
+#       strip.text.y = element_blank(), 
+#        axis.line.y = element_blank()) +
+#  theme(legend.position = "none") +
+#  coord_flip() 
 
-gg1.7m<- ggplot_gtable(ggplot_build(pD7.1m))
-gg2.7m <- ggplot_gtable(ggplot_build(pD7.2m))
+#gg1.7m<- ggplot_gtable(ggplot_build(pD7.1m))
+#gg2.7m <- ggplot_gtable(ggplot_build(pD7.2m))
 
-pD7m <- grid.arrange(gg1.7m,g.mid, gg2.7m,ncol=3,widths=c(4/9,1/9,4/9),
-                     top = textGrob("BUSCO genes missing (%)",gp=gpar(fontsize=20,font=1)))
+#pD7m <- grid.arrange(gg1.7m,g.mid, gg2.7m,ncol=3,widths=c(4/9,1/9,4/9),
+#                     top = textGrob("BUSCO genes missing (%)",gp=gpar(fontsize=20,font=1)))
 
-ggsave(file="panel4f3.svg", plot=pD7m, width=8, height=5)
+#ggsave(file=paste0(outdir, "/panel4f3.svg"), plot=pD7m, width=8, height=5)
 
 
 ### End Panel 4f3
@@ -693,7 +696,7 @@ p.leg <- ggplot(melted_ES_summary_exons, aes(x=Label, y=value, alpha=name, fill=
 leg <- get_legend(p.leg)
 p_leg <- as_ggplot(leg)
 
-ggsave(file="Panel4g.svg", plot=p_leg, width=5, height=8)
+ggsave(file=paste0(outdir, "/Panel4g.svg"), plot=p_leg, width=5, height=8)
 
 ### End Panel 4g
 ################
@@ -701,7 +704,7 @@ ggsave(file="Panel4g.svg", plot=p_leg, width=5, height=8)
 ### Panel 4h1
 #############
 
-ES_SIRV_metrics <- read.csv("ES_challenge1/ES_challenge1_metrics.SIRVS_metrics.csv", sep=",",header = T) %>% t()
+ES_SIRV_metrics <- read.csv("Challenge3_Figures_Data/ES_challenge1/ES_challenge1_metrics.SIRVS_metrics.csv", sep=",",header = T) %>% t()
 ES_SIRV_metrics <- merge(ES_SIRV_metrics, ES_code, by.x=0, by.y="pipelineCode")
 ES_SIRV_metrics$"1/Red" <- round(1/ES_SIRV_metrics$Redundancy,2)
 ES_SIRV_metrics$Label <-apply(cbind(ES_SIRV_metrics[,c("Library_Preps", "Platform","Data_Category")]), 1, paste, collapse="_")
@@ -723,7 +726,7 @@ mycolors = c( "cDNA_PacBio_LO"="#d8527c", "cDNA_PacBio_LS"="#9a133d",
 tool = sort(unique(ES_SIRV_metrics2$Tool))
 plat_lib <- unique(ES_SIRV_metrics2$Label)
 
-pdf("panel4h1.pdf")
+pdf(paste0(outdir, "/panel4h1.pdf"))
 par(mar=c(0,0.5,1.5,0) + 0.1)
 #layout(matrix(c(1:12,13,13,13,13),  byrow = TRUE, ncol = 4,nrow = 4)) # for main figure
 layout(matrix(c(1:4,5,5),  byrow = TRUE, ncol = 2,nrow = 3))
@@ -754,7 +757,7 @@ dev.off()
 
 ### Panel 4h2
 #############
-manatee_SIRV_metrics <- read.csv("manatee/manatee_challenge3_metrics.SIRVS_metrics.csv", sep=",",header = T) %>% t()
+manatee_SIRV_metrics <- read.csv("Challenge3_Figures_Data/manatee/manatee_challenge3_metrics.SIRVS_metrics.csv", sep=",",header = T) %>% t()
 manatee_SIRV_metrics <- merge(manatee_SIRV_metrics, manatee_code, by.x=0, by.y="pipelineCode")
 manatee_SIRV_metrics$"1/Red" <- round(1/manatee_SIRV_metrics$Redundancy,2)
 manatee_SIRV_metrics$Label <-apply(cbind(manatee_SIRV_metrics[,c("Library_Preps", "Platform","Data_Category")]), 1, paste, collapse="_")
@@ -773,21 +776,25 @@ colnames(mana_metrics2) <- c("Sen", "PDR", "Pre", "nrPre", "FDR", "1/Red", "Tool
 mycolors = c( "cDNA_PacBio_LO"="#d8527c", "cDNA_PacBio_LS"="#9a133d", 
               "cDNA_ONT_LO"="#6996e3", "cDNA_ONT_LS"="#1a318b" )
 
-tool = sort(unique(mana_metrics2$Tool))
-plat_lib <- unique(mana_metrics2$Label)
+# remove rnaSpades as it has No results
 
-pdf("panel4h2.pdf")
+mana_metrics3 <- mana_metrics2[mana_metrics2$Tool != "rnaSPAdes",]
+
+tool = sort(unique(mana_metrics3$Tool))
+plat_lib <- unique(mana_metrics3$Label)
+
+pdf(paste0(outdir, "/panel4h2.pdf"))
 par(mar=c(0,0.5,1.5,0) + 0.1)
 #layout(matrix(c(1:12,13,13,13,13),  byrow = TRUE, ncol = 4,nrow = 4)) # for main figure
 layout(matrix(c(1:4,5,5),  byrow = TRUE, ncol = 2,nrow = 3))
 
-for ( i in 1:4) {
-  sel <- mana_metrics2$Tool == tool[i]
-  subms <- mana_metrics2[sel,c(1:6)]
+for ( i in 1:3) {
+  sel <- mana_metrics3$Tool == tool[i]
+  subms <- mana_metrics3[sel,c(1:6)]
   subms <- rbind(rep(1,ncol(subms)) , rep(0,ncol(subms)), subms)
   radarchart(subms, axistype=1 , title= tool[i], 
              #custom polygon
-             pcol= mycolors[mana_metrics2[sel,"Label"]], plwd=2 , plty=1.3,
+             pcol= mycolors[mana_metrics3[sel,"Label"]], plwd=2 , plty=1.3,
              #custom the grid
              cglcol = "grey", cglty=1, axislabcol="grey", cglwd = 0.8, caxislabels=seq(0,0.25,1), 
              #custom labels
@@ -795,6 +802,9 @@ for ( i in 1:4) {
              vlabels = colnames(subms) , palcex = 1, cex.main=1.2, paxislabels = 0, col = c(2,2,2,3,3,1)
   )
 }
+
+# add an empty plot
+plot(x = 1, y = 1, col = "white", xaxt='n', yaxt='n', bty ="n",axes=F,frame.plot=F)
 
 # Add a legend
 plot(1, type = "n", axes=FALSE, xlab="", ylab="")
