@@ -37,6 +37,7 @@ packages <- c(
         "reshape2",
         "scales",
         "tidyr",
+        "tidyverse",
         "viridis",
         "svglite"
 )
