@@ -18,7 +18,7 @@ library(grid)
 library(RColorConesa)
 library(ggthemes)
 
-outdir = "output/supplementary"
+outdir = "output/extended"
 dir.create(outdir, recursive=TRUE, showWarnings=FALSE)
 
 #### set theme for plots
@@ -45,25 +45,25 @@ cat.palette = c( "FSM"="#6BAED6", "ISM"="#FC8D59", "NIC"="#78C679",
                  "Intergenic" = "darksalmon", "GenicIntron"="#41B6C4")
 
 
-#Extended Fig. 63b BUSCO Analysis Genome
+#Extended Data Fig. 63b BUSCO Analysis Genome
 
 BUSCO.data <- data.frame(BUSCO = c("Complete", "Complete_single", "Complete_Duplicated", "Framented", "Missing"), 
                     Value = c(9685, 9637, 48, 473, 1208), stringsAsFactors = FALSE)
 BUSCO.data$Percentage <- round(BUSCO.data$Value/11366 * 100,1)
 
+suppl = "63"
 BU <- ggplot(BUSCO.data, aes(x=BUSCO, y=Percentage, fill = BUSCO)) +
                geom_bar(stat="identity") +
          pub_theme + 
          ylab("% BUSCOs") +
-         ggtitle("BUSCO Analysis Manatee draft genome") +
          theme(plot.title = element_text(hjust = 0.5)) +
          theme(axis.text.x = element_text(angle=90)) 
-BU
+mylegend <- paste0("     Extended Data Fig. ", suppl, ". BUSCO Analysis Manatee draft genome.")
 pdf(paste0(outdir, "/Extended_Fig._63b.pdf"))
-annotate_figure(BU)
+annotate_figure(BU,  bottom = text_grob(mylegend, hjust = 0,  x = 0,  size = 9))
 dev.off()
 
-## Extended Fig. 64
+## Extended Data Fig. 64
 ###################
 
 
@@ -153,13 +153,13 @@ Ch3S2 <- grid.arrange(gg3.1,g.mid, gg3.2,ncol=3,widths=c(4/9,1/9,4/9),
 ggsave(file=paste0(outdir, "/Ch3S2.svg"), plot=Ch3S2, width=8, height=5)
 
 suppl = "64"
-mylegend <- paste0("     Extended Fig. ", suppl, ". Mapping rate of transcript detected by Challenge 3 submissions.")
+mylegend <- paste0("     Extended Data Fig. ", suppl, ". Mapping rate of transcript detected by Challenge 3 submissions.")
 pdf(paste0(outdir, "/Extended_Fig._64.pdf"))
 annotate_figure(Ch3S2,  bottom = text_grob(mylegend, hjust = 0,  x = 0,  size = 9))
 dev.off()
 
 
-## Extended Fig. 65
+## Extended Data Fig. 65
 ###################
 ES_code <- read.csv("Challenge3_Figures_Data/ES_challenge1/ES_code.txt", sep=",", header = T )
 mouse_ch3 <- read.csv("Challenge3_Figures_Data/ES_challenge1/ES_challenge1_metrics.summary_table_SC.csv", sep=",", header = T )
@@ -188,12 +188,12 @@ C <- ggplot(data.ff, aes(x = Challenge, y = value, fill = variable)) +
 ggsave(file=paste0(outdir, "/Ch3S3.svg"), plot=Ch3S2, width=8, height=5)
 
 suppl = "65"
-mylegend <- paste0("     Extended Fig. ", suppl, ". SQANTI category classification of transcript models detected by the same tools in Challenge 1 and 3.\n     Challenge 1 predictions used the reference annotation and Challenge 3 predictions did not.\n     Ba = Bambu, IQ = StringTie2/IsoQuant.")
+mylegend <- paste0("     Extended Data Fig. ", suppl, ". SQANTI category classification of transcript models detected by the same tools in Challenge 1 and 3.\n     Challenge 1 predictions used the reference annotation and Challenge 3 predictions did not.\n     Ba = Bambu, IQ = StringTie2/IsoQuant.")
 pdf(paste0(outdir, "/Extended_Fig._65.pdf"))
 annotate_figure(C,  bottom = text_grob(mylegend, hjust = 0,  x = 0,  size = 9))
 dev.off()
 
-## Extended Fig. 66
+## Extended Data Fig. 66
 ###################
 
 ES_coding <- data.frame(
@@ -280,7 +280,7 @@ Ch3S4 <- grid.arrange(gg4.1,g.mid, gg4.2,ncol=3,widths=c(4/9,1/9,4/9),
 ggsave(file=paste0(outdir, "/Ch3S4.svg"), plot=Ch3S4, width=8, height=5)
 
 suppl = "66"
-mylegend <- paste0("     Extended Fig. ", suppl, ". Coding potential of transcripts detected by Challenge 3 submissions.")
+mylegend <- paste0("     Extended Data Fig. ", suppl, ". Coding potential of transcripts detected by Challenge 3 submissions.")
 pdf(paste0(outdir, "/Extended_Fig._66_b.pdf"))
 annotate_figure(Ch3S2,  bottom = text_grob(mylegend, hjust = 0,  x = 0,  size = 9))
 dev.off()
