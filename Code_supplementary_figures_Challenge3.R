@@ -285,3 +285,41 @@ pdf(paste0(outdir, "/Extended_Fig._66_b.pdf"))
 annotate_figure(Ch3S2,  bottom = text_grob(mylegend, hjust = 0,  x = 0,  size = 9))
 dev.off()
 
+## Extended Fig. 67
+###################
+
+# Structural category
+load("SIRVs_manatee_paper.RData")
+SCmanateeSIRVs <- df %>% group_by(sample) %>% dplyr::count(structural_category) %>% mutate(prop=n/sum(n)*100)
+
+fig67a <- ggplot(SCmanateeSIRVs, aes(x=sample,y=prop,fill=structural_category)) + 
+  geom_bar(position="stack", stat="identity",color="black",width = 0.5) + 
+  theme_bw() + xlab("Manatee samples") +
+  theme(aspect.ratio=0.8) +  
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1), legend.text = element_text(size= 8),legend.key.size = unit(0.5, 'cm'), legend.title=element_blank()) + 
+  scale_fill_manual(values=c("#6aaed5","#f38f5f","#5fa05e","#eb6b52","#959595","#6ebda4","#ffbf27","#e59975","grey")) + 
+  ylab("% SQANTI categories in SIRV reads") + theme(text=element_text(size=10))
+  
+
+# Plot for # SIRV transcripts detected with reference-match read (out of 69)
+fig67b <- ggplot(how_many_SIRV_transcripts_with_RM, aes(x=sample, y=count_distinct,fill=sample)) + 
+  geom_bar(stat="identity", position="dodge") + 
+  theme_bw() + theme(aspect.ratio=0.8) +  
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1),  legend.text = element_text(size=8), legend.key.size = unit(0.5, 'cm'), legend.title=element_blank()) + 
+  ylab("# SIRV transcripts detected with RM reads") + xlab("Manatee sample") + 
+  theme(text=element_text(size=10)) + 
+  scale_fill_manual(values=c("#9DACBB","#9DACBB","#9DACBB","#104E8B","#104E8B","#104E8B")) + 
+  geom_hline(yintercept=69, linetype="dashed",color = "darkred", linewidth=1) + 
+  theme(legend.position = "none") + scale_y_continuous(breaks=seq(0,70,5)) + 
+  geom_text(data = how_many_SIRV_transcripts_with_RM, aes(label = count_distinct), vjust=-0.5, hjust=0.5)
+
+fig67 <- ggarrange(fig67a,fig67b,
+                      labels = c( "a)", "b)"),
+                      ncol = 2, nrow = 1, legend="bottom") +
+  theme(plot.margin = margin(0.5,0.5,0.5,0.5, "cm")) 
+
+suppl = "67"
+mylegend <- paste0("     Extended Fig. ", suppl, ". SQANTI3 analysis of SIRV reads in manatee samples. a) SQANTI3 categories for reads mapping to SIRVs in cDNA-PacBio and cDNA-ONT replicates. \n     b) Number of SIRV transcripts with at least one Reference Match (RM) read in cDNA-PacBio and cDNA-ONT replicates")
+pdf(paste0(outdir, "/Extended_Fig._67.pdf"), width = 10, height = 6)
+annotate_figure(fig67,  bottom = text_grob(mylegend, hjust = 0,  x = 0,  size = 9))
+dev.off()
