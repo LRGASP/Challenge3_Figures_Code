@@ -289,8 +289,12 @@ dev.off()
 ###################
 
 # Structural category
-load("SIRVs_manatee_paper.RData")
-SCmanateeSIRVs <- df %>% group_by(sample) %>% dplyr::count(structural_category) %>% mutate(prop=n/sum(n)*100)
+
+# this was original from, however the RData file was huge, so the relevent data was saved
+#    load("SIRVs_manatee_paper.RData")
+#    SCmanateeSIRVs <- df %>% group_by(sample) %>% dplyr::count(structural_category) %>% mutate(prop=n/sum(n)*100)
+
+SCmanateeSIRVs <- read.csv("Challenge3_Figures_Data/SIRVs/nb_SIRV_reads_manatee_by_SQANTI_category.csv")
 
 fig67a <- ggplot(SCmanateeSIRVs, aes(x=sample,y=prop,fill=structural_category)) + 
   geom_bar(position="stack", stat="identity",color="black",width = 0.5) + 
@@ -302,6 +306,8 @@ fig67a <- ggplot(SCmanateeSIRVs, aes(x=sample,y=prop,fill=structural_category)) 
   
 
 # Plot for # SIRV transcripts detected with reference-match read (out of 69)
+how_many_SIRV_transcripts_with_RM <- read.csv("Challenge3_Figures_Data/SIRVs/how_many_SIRV_transcripts_with_RM.csv")
+
 fig67b <- ggplot(how_many_SIRV_transcripts_with_RM, aes(x=sample, y=count_distinct,fill=sample)) + 
   geom_bar(stat="identity", position="dodge") + 
   theme_bw() + theme(aspect.ratio=0.8) +  
