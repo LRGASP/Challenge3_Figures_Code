@@ -17,6 +17,10 @@ library(gridExtra)
 library(grid)
 library(RColorConesa)
 library(ggthemes)
+library(dplyr)
+library(data.table)
+library(UpSetR)
+library(stringr) # Load
 
 outdir = "output/extended"
 dir.create(outdir, recursive=TRUE, showWarnings=FALSE)
@@ -51,16 +55,16 @@ BUSCO.data <- data.frame(BUSCO = c("Complete", "Complete_single", "Complete_Dupl
                     Value = c(9685, 9637, 48, 473, 1208), stringsAsFactors = FALSE)
 BUSCO.data$Percentage <- round(BUSCO.data$Value/11366 * 100,1)
 
-suppl = "63"
 BU <- ggplot(BUSCO.data, aes(x=BUSCO, y=Percentage, fill = BUSCO)) +
                geom_bar(stat="identity") +
          pub_theme + 
          ylab("% BUSCOs") +
+         ggtitle("BUSCO Analysis Manatee draft genome") +
          theme(plot.title = element_text(hjust = 0.5)) +
-         theme(axis.text.x = element_text(angle=90)) 
-mylegend <- paste0("     Extended Data Fig. ", suppl, ". BUSCO Analysis Manatee draft genome.")
+      theme(axis.text.x = element_text(angle=90))
+BU
 pdf(paste0(outdir, "/Extended_Fig._63b.pdf"))
-annotate_figure(BU,  bottom = text_grob(mylegend, hjust = 0,  x = 0,  size = 9))
+annotate_figure(BU)
 dev.off()
 
 ## Extended Data Fig. 64
