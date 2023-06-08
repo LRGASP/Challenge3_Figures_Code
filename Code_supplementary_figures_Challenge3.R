@@ -70,6 +70,9 @@ dev.off()
 ## Extended Data Fig. 64
 ###################
 
+# note: this generates labels in wrong order, from top to bottom they should be
+#       Bambu, RNA_Bloom, rnaSPAdes, StringTie2_isoquant
+# correct in edited slide, but not here
 
 ES_mapping <- data.frame(
   Label = c("illumina_1", "ONT_1", "ONT_10", "ONT_11", "ONT_2", "ONT_3", "ONT_4", "ONT_5", "ONT_6", "ONT_7", "ONT_8", "ONT_9", "PB_1", "PB_2", "PB_3", "PB_4", "PB_5"),
