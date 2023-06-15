@@ -48,7 +48,6 @@ cat.palette = c( "FSM"="#6BAED6", "ISM"="#FC8D59", "NIC"="#78C679",
                  "NNC"="#EE6A50", "GenicGenomic"="#969696", "Antisense"="#66C2A4", "Fusion"="goldenrod1",
                  "Intergenic" = "darksalmon", "GenicIntron"="#41B6C4")
 
-
 #Extended Data Fig. 63b BUSCO Analysis Genome
 
 BUSCO.data <- data.frame(BUSCO = c("Complete", "Complete_single", "Complete_Duplicated", "Framented", "Missing"), 
@@ -303,19 +302,34 @@ dev.off()
 
 SCmanateeSIRVs <- read.csv("Challenge3_Figures_Data/SIRVs/nb_SIRV_reads_manatee_by_SQANTI_category.csv")
 
-fig67a <- ggplot(SCmanateeSIRVs, aes(x=sample,y=prop,fill=structural_category)) + 
+# frame uses different names for categories than other graphs, map them
+catmap <- c("antisense" = "Antisense",  
+            "full-splice_match" = "FSM",        
+            "fusion" = "Fusion",     
+            "genic" = "GenicGenomic",
+            "incomplete-splice_match" = "ISM",        
+            "intergenic" = "Intergenic", 
+            "novel_in_catalog" = "NIC",        
+            "novel_not_in_catalog" = "NNC",        
+            "genic_intron" = "GenicIntron")
+
+SCmanateeSIRVs$structural_category_label <- catmap[SCmanateeSIRVs$structural_category]
+
+fig67a <- ggplot(SCmanateeSIRVs, aes(x=sample,y=prop,fill=structural_category_label,
+                                     group = structural_category_label, colour = structural_category_label)) + 
   geom_bar(position="stack", stat="identity",color="black",width = 0.5) + 
   theme_bw() + xlab("Manatee samples") +
   theme(aspect.ratio=0.8) +  
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1), legend.text = element_text(size= 8),legend.key.size = unit(0.5, 'cm'), legend.title=element_blank()) + 
-  scale_fill_manual(values=c("#6aaed5","#f38f5f","#5fa05e","#eb6b52","#959595","#6ebda4","#ffbf27","#e59975","grey")) + 
+  scale_fill_manual(name = "Structural_category", values = cat.palette , 
+                         limits = names(cat.palette)) + 
   ylab("% SQANTI categories in SIRV reads") + theme(text=element_text(size=10))
   
 
 # Plot for # SIRV transcripts detected with reference-match read (out of 69)
 how_many_SIRV_transcripts_with_RM <- read.csv("Challenge3_Figures_Data/SIRVs/how_many_SIRV_transcripts_with_RM.csv")
 
-fig67b <- ggplot(how_many_SIRV_transcripts_with_RM, aes(x=sample, y=count_distinct,fill=sample)) + 
+fig67b <- ggplot(how_many_SIRV_transcripts_with_RM, aes(x=sample, y=count_distinct,fill=sample)) +
   geom_bar(stat="identity", position="dodge") + 
   theme_bw() + theme(aspect.ratio=0.8) +  
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1),  legend.text = element_text(size=8), legend.key.size = unit(0.5, 'cm'), legend.title=element_blank()) + 
