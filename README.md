@@ -6,7 +6,7 @@ To generate the figures, obtain code from GitHub:
 
 ```
 git clone git@github.com:LRGASP/Challenge3_Figures_Code.git
-cd Challenge2_Figures_Code
+cd Challenge3_Figures_Code
 ```
 
 Download the data files from:
