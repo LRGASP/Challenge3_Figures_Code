@@ -294,13 +294,23 @@ dev.off()
 ## Extended Fig. 67
 ###################
 
+library("ggpubr")
+
+cat.palette = c( "FSM"="#6BAED6", "ISM"="#FC8D59", "NIC"="#78C679", 
+                 "NNC"="#EE6A50", "GenicGenomic"="#969696", "Antisense"="#66C2A4", "Fusion"="goldenrod1",
+                 "Intergenic" = "darksalmon", "GenicIntron"="#41B6C4")
+
 # Structural category
 
-# this was original from, however the RData file was huge, so the relevent data was saved
+# this was original from, however the RData file was huge, so the relevant data was saved
 #    load("SIRVs_manatee_paper.RData")
-#    SCmanateeSIRVs <- df %>% group_by(sample) %>% dplyr::count(structural_category) %>% mutate(prop=n/sum(n)*100)
+#    SCmanateeSIRVs <- df %>% group_by(sample) %>% dplyr::count(structural_category) %>% mutate(prop=n/sum(n)*100) 
+#    the above df is saved as the file 'nb_SIRV_reads_manatee_by_SQANTI_category.csv' 
 
-SCmanateeSIRVs <- read.csv("Challenge3_Figures_Data/SIRVs/nb_SIRV_reads_manatee_by_SQANTI_category.csv")
+#    how_many_SIRV_transcripts_with_RM <- df %>% ungroup() %>% dplyr::filter(structural_category=="full-splice_match" & abs(diff_to_TSS)<50 & abs(diff_to_TTS)<50) %>% group_by(sample) %>% summarize(count_distinct = n_distinct(associated_transcript)) 
+#    the above df is saved as the file 'how_many_SIRV_transcripts_with_RM.csv'
+
+SCmanateeSIRVs <- read.table("Challenge3_Figures_Data/SIRVs/nb_SIRV_reads_manatee_by_SQANTI_category.csv",sep=" ",header=TRUE)
 
 # frame uses different names for categories than other graphs, map them
 catmap <- c("antisense" = "Antisense",  
@@ -327,7 +337,7 @@ fig67a <- ggplot(SCmanateeSIRVs, aes(x=sample,y=prop,fill=structural_category_la
   
 
 # Plot for # SIRV transcripts detected with reference-match read (out of 69)
-how_many_SIRV_transcripts_with_RM <- read.csv("Challenge3_Figures_Data/SIRVs/how_many_SIRV_transcripts_with_RM.csv")
+how_many_SIRV_transcripts_with_RM <- read.table("Challenge3_Figures_Data/SIRVs/how_many_SIRV_transcripts_with_RM.csv",header=TRUE)
 
 fig67b <- ggplot(how_many_SIRV_transcripts_with_RM, aes(x=sample, y=count_distinct,fill=sample)) +
   geom_bar(stat="identity", position="dodge") + 
