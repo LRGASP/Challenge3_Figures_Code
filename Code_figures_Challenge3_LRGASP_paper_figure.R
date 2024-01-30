@@ -264,8 +264,7 @@ labels = c("SO", rep("LO", 6), rep("LS", 3))
 count_df_ES <- dist_df_ES %>%
   group_by(pipeline, Label, Tool) %>%
   summarise(Count = n(), .groups = 'drop')
-count_df_ES$label_order = factor(count_df_ES$Label, levels=label_breaks)
-count_df_ES <- count_df_ES[order(tolower(count_df_ES$Tool), count_df_ES$label_order),]
+count_df_ES <- count_df_ES[order(tolower(count_df_ES$Tool), tolower(count_df_ES$Label)),]
 print("== Panel 4c ES counts ===")
 print(count_df_ES)
 
@@ -311,8 +310,7 @@ labels = c("SO", rep("LO", 6), rep("LS", 3))
 count_df_manatee <- dist_df_manatee %>%
   group_by(pipeline, Label, Tool) %>%
   summarise(Count = n(), .groups = 'drop')
-count_df_manatee$label_order = factor(count_df_manatee$Label, levels=label_breaks)
-count_df_manatee <- count_df_manatee[order(tolower(count_df_manatee$Tool), count_df_manatee$label_order),]
+count_df_manatee <- count_df_manatee[order(tolower(count_df_manatee$Tool), tolower(count_df_manatee$Label)),]
 print("== Panel 4d manatee counts ===")
 print(count_df_manatee)
 
