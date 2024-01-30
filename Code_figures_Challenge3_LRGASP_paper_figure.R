@@ -256,14 +256,25 @@ colnames(dist_df_ES)<-c("pipeline","length")
 dist_df_ES <- merge(dist_df_ES, ES_code, by.x="pipeline", by.y="pipelineCode")
 dist_df_ES$Tool <- gsub("-", "\n", dist_df_ES$Tool)
 
+label_breaks = c("cDNA-Illumina-SO", "CapTrap-ONT-LO", "R2C2-ONT-LO", "cDNA-ONT-LO","CapTrap-PacBio-LO", "cDNA-PacBio-LO",
+                 "dRNA-ONT-LO", "dRNA-ONT-LS", "cDNA-ONT-LS",  "cDNA-PacBio-LS")
+labels = c("SO", rep("LO", 6), rep("LS", 3))
+
+# print counts to use in caption, order to match plots
+count_df_ES <- dist_df_ES %>%
+  group_by(pipeline, Label, Tool) %>%
+  summarise(Count = n(), .groups = 'drop')
+count_df_ES$label_order = factor(count_df_ES$Label, levels=label_breaks)
+count_df_ES <- count_df_ES[order(tolower(count_df_ES$Tool), count_df_ES$label_order),]
+print("== Panel 4c ES counts ===")
+print(count_df_ES)
+
 pF3 <- ggplot(dist_df_ES, aes(x=Label, y=length, fill=Lib_Plat))+
   geom_violin()+
   geom_boxplot(width=0.15, color="white", alpha=0.8, outlier.shape = NA) +
   facet_grid( .~Tool , scales="free_x", space="free_x") +
   scale_fill_manual(values =  libplat.palette, name="Library-Platoform") +
-  scale_x_discrete(breaks=c("cDNA-Illumina-SO", "CapTrap-ONT-LO", "R2C2-ONT-LO", "cDNA-ONT-LO","CapTrap-PacBio-LO", "cDNA-PacBio-LO",
-                            "dRNA-ONT-LO", "dRNA-ONT-LS", "cDNA-ONT-LS",  "cDNA-PacBio-LS"),
-                   labels=c("SO", rep("LO", 6), rep("LS", 3)))+
+  scale_x_discrete(breaks=label_breaks, labels=labels)+
   xlab("")+ 
   ylab("Length (bp), log10")+
   pub_theme +
@@ -271,6 +282,7 @@ pF3 <- ggplot(dist_df_ES, aes(x=Label, y=length, fill=Lib_Plat))+
   theme(strip.text.x = element_text(size=16)) +
   scale_y_continuous(trans='log10', breaks = trans_breaks("log10", function(x) 10^x),
                      labels = trans_format("log10", math_format(10^.x)) )
+
 ggsave(file=paste0(outdir, "/panel4c.svg"), plot=pF3, width=12, height=6)
 
 ### End Panel 4c
@@ -291,15 +303,27 @@ dist_df_manatee <- merge(dist_df_manatee, manatee_code, by.x="pipeline", by.y="p
 dist_df_manatee$Tool <- gsub("-", "\n", dist_df_manatee$Tool)
 
 sample_size = dist_df_manatee %>% group_by(pipeline) %>% summarize(num=n())
+label_breaks = c("cDNA-Illumina-SO", "CapTrap-ONT-LO", "R2C2-ONT-LO", "cDNA-ONT-LO","CapTrap-PacBio-LO", "cDNA-PacBio-LO",
+                 "dRNA-ONT-LO", "dRNA-ONT-LS", "cDNA-ONT-LS",  "cDNA-PacBio-LS")
+labels = c("SO", rep("LO", 6), rep("LS", 3))
+
+# print counts to use in caption, order to match plots
+count_df_manatee <- dist_df_manatee %>%
+  group_by(pipeline, Label, Tool) %>%
+  summarise(Count = n(), .groups = 'drop')
+count_df_manatee$label_order = factor(count_df_manatee$Label, levels=label_breaks)
+count_df_manatee <- count_df_manatee[order(tolower(count_df_manatee$Tool), count_df_manatee$label_order),]
+print("== Panel 4d manatee counts ===")
+print(count_df_manatee)
+
+
 
 pF2 <- ggplot(dist_df_manatee, aes(x=Label, y=length, fill=Lib_Plat))+
   geom_violin()+
   geom_boxplot(width=0.15, color="white", alpha=0.8, outlier.shape = NA) +
   facet_grid( .~Tool , scales="free_x", space="free_x") +
   scale_fill_manual(values =  libplat.palette, name="Library-Platoform") +
-  scale_x_discrete(breaks=c("cDNA-Illumina-SO", "CapTrap-ONT-LO", "R2C2-ONT-LO", "cDNA-ONT-LO","CapTrap-PacBio-LO", "cDNA-PacBio-LO",
-                            "dRNA-ONT-LO", "dRNA-ONT-LS", "cDNA-ONT-LS",  "cDNA-PacBio-LS"),
-                   labels=c("SO", rep("LO", 6), rep("LS", 3)))+
+  scale_x_discrete(breaks=label_breaks, labels=labels)+
   xlab("")+ 
   ylab("Length (bp), log10")+
   pub_theme +
